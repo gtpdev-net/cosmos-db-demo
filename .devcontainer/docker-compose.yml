@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  # Dev container for the application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ../..:/workspaces:cached
+    command: sleep infinity
+    network_mode: service:cosmosdb-emulator
+    depends_on:
+      - cosmosdb-emulator
+    environment:
+      WINDOWS_HOME: ${WINDOWS_HOME}
+
+  # Azure Cosmos DB Linux Emulator
+  cosmosdb-emulator:
+    image: mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:latest
+    container_name: cosmosdb-emulator
+    ports:
+      - "8081:8081"
+      - "10250:10250"
+      - "10251:10251"
+      - "10252:10252"
+      - "10253:10253"
+      - "10254:10254"
+      - "10255:10255"
+    environment:
+      AZURE_COSMOS_EMULATOR_PARTITION_COUNT: 10
+      AZURE_COSMOS_EMULATOR_ENABLE_DATA_PERSISTENCE: "false"
+      AZURE_COSMOS_EMULATOR_IP_ADDRESS_OVERRIDE: "127.0.0.1"
+    # Add memory and CPU limits for better performance
+    mem_limit: 3g
+    cpus: 2.0
